@@ -97,6 +97,17 @@ class WebGraph():
         then each url satisfying the query has the vector entry set to 1;
         all other entries are set to 0.
         '''
+
+        # for each index in the personalization vector:
+        #     get the url for the index (see the _index_to_url function)
+        #     check if the url satisfies the input query (see the url_satisfies_query function)
+        #     if so, set the corresponding index to one
+        # normalize the vector
+        # for i in range(v):
+        #     self._index_to_url(self, index)
+        #     if url_satisfies_query(url, query):
+        #         index = 1
+
         n = self.P.shape[0]
 
         if query is None:
@@ -123,7 +134,6 @@ class WebGraph():
         with torch.no_grad():
             n = self.P.shape[0]
 
-            # create variables if none given
             if v is None:
                 v = torch.Tensor([1/n]*n)
                 v = torch.unsqueeze(v,1)
@@ -134,32 +144,23 @@ class WebGraph():
                 x0 = torch.unsqueeze(x0,1)
             x0 /= torch.norm(x0)
 
-            # Computes the a value 
-            a = torch.zeros(n)
-            for i in range(n):
-                if torch.all(self.P[i].to_dense() == 0):
-                    a[i] = 1
-            a = a.view(-1, 1)
-            v = v.view(-1, 1)
+            # a creates matrix of all ones with length n x 1
+            a = torch.ones([n, 1])
+            not_sparse = torch.sparse.sum(self.P,1).indices() # when the rows in P is not sparsed
+            a[not_sparse] = 0 # for every non sparse rows, make them to be 0
             
             # main loop
             xprev = x0
             x = xprev.detach().clone()
             for i in range(max_iterations):
                 xprev = x.detach().clone()
-                # compute the new x vector using Eq (5.1)
-                # FIXME: Task 1
-                # HINT: this can be done with a single call to the `torch.sparse.addmm` function,
-                # but you'll have to read the code above to figure out what variables should get passed to that function
-                # and what pre/post processing needs to be done to them
-
-                # By calling the torch.sparse.addmm function, I followed the power method formula
-                # and passed in variables alpha, v, self.P, xprev, and beta=alpha
-                # Note: I had to tranpose x and P like sparse(A^T, B^T)^T
-                # Note: Used unsqueeze function to convert a (6) to (6, 1)
-                y = ((alpha * xprev)*a + (1 - alpha)) * v
-                x = torch.sparse.addmm(y, self.P, xprev)
-                print(f'xprev.shape={xprev.shape}')
+                # Compute the new x vector using Eq (5.1)
+                # By calling the torch.sparse.addmm function, the power method formula is implemented
+                # and passed in variables alpha, xprev, and v
+                # Note: xprev and v must be transposed using t() function
+                # Note: xprev and a are computed using the @ function
+                y = (alpha * xprev.t()@a + (1 - alpha)) * v.t()
+                x = torch.sparse.addmm(y.t(), self.P.t(), alpha*xprev, beta = 1, alpha = alpha)
                 # output debug information
                 residual = torch.norm(x-xprev)
                 logging.debug(f'i={i} residual={residual}')
