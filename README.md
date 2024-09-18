@@ -4,7 +4,8 @@ In this project, I am creating a search engine for the website (https://www.lawf
 # Submission
 Task 1, part 1:
 
-``` $ python3 pagerank.py --data=data/small.csv.gz --verbose
+``` 
+    $ python3 pagerank.py --data=data/small.csv.gz --verbose
 
     DEBUG:root:computing indices
     DEBUG:root:computing values
