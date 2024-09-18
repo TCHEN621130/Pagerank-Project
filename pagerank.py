@@ -141,13 +141,12 @@ class WebGraph():
                     a[i] = 1
             a = a.view(-1, 1)
             v = v.view(-1, 1)
-
+            
             # main loop
             xprev = x0
             x = xprev.detach().clone()
             for i in range(max_iterations):
                 xprev = x.detach().clone()
-
                 # compute the new x vector using Eq (5.1)
                 # FIXME: Task 1
                 # HINT: this can be done with a single call to the `torch.sparse.addmm` function,
@@ -156,8 +155,11 @@ class WebGraph():
 
                 # By calling the torch.sparse.addmm function, I followed the power method formula
                 # and passed in variables alpha, v, self.P, xprev, and beta=alpha
-                # Note: I had to reshape v into a column vector
-                x = torch.sparse.addmm(((alpha * xprev)*a + (1 - alpha)) * v, self.P, xprev, alpha=alpha)
+                # Note: I had to tranpose x and P like sparse(A^T, B^T)^T
+                # Note: Used unsqueeze function to convert a (6) to (6, 1)
+                y = ((alpha * xprev)*a + (1 - alpha)) * v
+                x = torch.sparse.addmm(y, self.P, xprev)
+                print(f'xprev.shape={xprev.shape}')
                 # output debug information
                 residual = torch.norm(x-xprev)
                 logging.debug(f'i={i} residual={residual}')
