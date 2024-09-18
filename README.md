@@ -3,8 +3,9 @@ In this project, I am creating a search engine for the website (https://www.lawf
 
 # Submission
 Task 1, part 1:
-```$ python3 pagerank.py --data=data/small.csv.gz --verbose```
-```
+
+```$ python3 pagerank.py --data=data/small.csv.gz --verbose
+
     DEBUG:root:computing indices
     DEBUG:root:computing values
     C:\Users\teren\OneDrive\Desktop\HMC\3) Junior\Data Mining\Pagerank-Project\pagerank.py:73: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_new.cpp:643.)
