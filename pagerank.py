@@ -160,7 +160,7 @@ class WebGraph():
                 # Note: xprev and v must be transposed using t() function
                 # Note: xprev and a are computed using the @ function
                 y = (alpha * xprev.t()@a + (1 - alpha)) * v.t()
-                x = torch.sparse.addmm(y.t(), self.P.t(), alpha*xprev, beta = 1, alpha = alpha)
+                x = torch.sparse.addmm(y.t(), self.P.t(), alpha*xprev)
                 # output debug information
                 residual = torch.norm(x-xprev)
                 logging.debug(f'i={i} residual={residual}')
