@@ -103,23 +103,25 @@ class WebGraph():
         #     check if the url satisfies the input query (see the url_satisfies_query function)
         #     if so, set the corresponding index to one
         # normalize the vector
-        # for i in range(v):
-        #     self._index_to_url(self, index)
-        #     if url_satisfies_query(url, query):
-        #         index = 1
-
         n = self.P.shape[0]
 
         if query is None:
             v = torch.ones(n)
-
         else:
             v = torch.zeros(n)
-            # FIXME: implement Task 2
-        
-        v_sum = torch.sum(v)
-        assert(v_sum>0)
-        v /= v_sum
+            # Traverses through the personalization vector
+            for i in range(n):
+                # Stores the url for the index using self._index_to_url() function
+                u = self._index_to_url(i)
+                # Checks if the url satisfies using url_satisfies_query() function
+                if url_satisfies_query(u, query):
+                    v[i] = 1 
+            # Stores the value of the sum of all elements in vector v to variable norm
+            norm = torch.sum(v)
+            # Ensures that personalization vector is valid 
+            assert norm > 0
+            # Normalizes the vector 
+            v = v / norm
 
         return v
 
